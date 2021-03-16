@@ -1,20 +1,31 @@
 import 'dart:async';
 import 'dart:ffi';
 
+import 'package:amplify_api/amplify_api.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geocoder/geocoder.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 
+import 'package:krash_company/DatabaseConnection/create_client_data.dart';
 import 'home_screen.dart';
 
 class AddressPicker extends StatefulWidget{
-  _AddressPicker createState() => _AddressPicker();
+  String _country_code="";
+  String _mobile_no = "";
+
+  AddressPicker(this._country_code, this._mobile_no);
+
+  _AddressPicker createState() => _AddressPicker(_country_code,_mobile_no);
 }
 
 class _AddressPicker extends State<AddressPicker>
 {
+  String _country_code="+91";
+  String _mobile_no = "";
+
   Completer<GoogleMapController> _controller = Completer();
   LatLng ll;
   final Set<Marker> _markers = {};
@@ -25,9 +36,12 @@ class _AddressPicker extends State<AddressPicker>
   String location = "location ";
   String newAddress = "";
   CameraPosition _cameraPosition = new CameraPosition(target: LatLng(1, 1) ,zoom: 11);
+
+
+  _AddressPicker(this._country_code, this._mobile_no);
+
   @override
   void initState() {
-    print("jkjkjkjkj");
     _textEditingController = new TextEditingController();
     Future<Position> p = _determinePosition();
     p.whenComplete(() => {
@@ -229,10 +243,8 @@ class _AddressPicker extends State<AddressPicker>
 
                  ),
                  child: RaisedButton(onPressed: (){
-                   Navigator.pushReplacement(
-                     context,
-                     MaterialPageRoute(builder: (context) => HomeScreen(location)),
-                   );
+                   createUser();
+
                  },
                    elevation: 5,
                    color: Color.fromRGBO(0,0,102, 1),
@@ -330,9 +342,43 @@ class _AddressPicker extends State<AddressPicker>
 
       });
     });
-
-
   }
 
+  void createUser()
+  {
+    CreateClientData ccd = CreateClientData(UUID.getUUID(),"name","mail",location,ll.latitude.toString(),ll.longitude.toString(),_country_code+_mobile_no,"time","date","profile","true");
+    ccd.create().then((value){
+      if(value != null)
+      {
+        Fluttertoast.showToast(
+          msg: "User created succesfully",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Color.fromRGBO(0, 0, 102, 1),
+          textColor: Colors.white,
+          fontSize: 16.0,
+        );
 
+        Timer(Duration(
+          seconds: 1,),(){
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => HomeScreen(value)),
+          );
+        });
+      }
+      else{
+        Fluttertoast.showToast(
+          msg: "!Something problem",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Color.fromRGBO(0, 0, 102, 1),
+          textColor: Colors.white,
+          fontSize: 16.0,
+        );
+      }
+    });
+  }
 }

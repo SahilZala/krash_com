@@ -1,8 +1,13 @@
 
+import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:krash_company/home/home_screen.dart';
 import 'package:krash_company/otp_verification.dart';
+import 'package:krash_company/DatabaseConnection/check_mobileno.dart';
+
 class LoginSignup extends StatefulWidget{
   _LoginSignup createState() => _LoginSignup();
 }
@@ -13,32 +18,37 @@ class _LoginSignup extends State<LoginSignup>
 
   TextEditingController _editingController;
   ScrollController _scrollController;
+  String _country_code="+91";
+  String _mobile_no = "";
+
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: SingleChildScrollView(
-          controller: _scrollController,
-          child: Container(
-            height: MediaQuery.of(context).size.height,
-            width: MediaQuery.of(context).size.width,
-            decoration: BoxDecoration(
-                image: DecorationImage(
-                    image: AssetImage(
-                      "images/login_background.png",
-                    ),
-                    fit: BoxFit.fill
-                )
-            ),
-            child: Stack(
-             children: [
-               Container(
-                 padding: EdgeInsets.all(10),
-                 height: MediaQuery.of(context).size.height,
-                 width: MediaQuery.of(context).size.width,
-                 child: Form(
-                   key: _formKey,
+          child: Stack(
+           children: [
+             Container(
+               height: MediaQuery.of(context).size.height,
+               width: MediaQuery.of(context).size.width,
+               decoration: BoxDecoration(
+                   image: DecorationImage(
+                       image: AssetImage(
+                         "images/login_background.png",
+                       ),
+                       fit: BoxFit.fill
+                   )
+               ),
+             ),
+             Container(
+               alignment: Alignment.center,
+               padding: EdgeInsets.all(10),
+               height: MediaQuery.of(context).size.height,
+               width: MediaQuery.of(context).size.width,
+               child: Form(
+                 key: _formKey,
+                 child: SingleChildScrollView(
                    child: Column(
                      mainAxisAlignment: MainAxisAlignment.center,
                      children: [
@@ -49,15 +59,23 @@ class _LoginSignup extends State<LoginSignup>
                          crossAxisAlignment: CrossAxisAlignment.start,
                          children: [
                            Container(
-                             child: DropdownButtonHideUnderline(
-                               child: DropdownButton(
-                                 value: _selectedCompany,
-                                 items: _dropdownMenuItems,
-                                 onChanged: onChangeDropdownItem,
-                               ),
+                             child: CountryCodePicker(
+                               onChanged: (val){
+                                 print(val);
+                                 _country_code = val.toString();
+                               },
+                               // Initial selection and favorite can be one of code ('IT') OR dial_code('+39')
+                               initialSelection: 'IN',
+                               favorite: ['+91','IN'],
+                               // optional. Shows only country name and flag
+                               showCountryOnly: false,
+                               // optional. Shows only country name and flag when popup is closed.
+                               showOnlyCountryWhenClosed: false,
+                               // optional. aligns the flag and the Text left
+                               alignLeft: false,
                              ),
                              decoration: BoxDecoration(border: Border.all(width: 1,color: Colors.grey),borderRadius: BorderRadius.circular(5)),
-                            padding: EdgeInsets.fromLTRB(10,2, 10, 2),
+                             padding: EdgeInsets.fromLTRB(2,2, 2, 2),
                            ),
 
                            SizedBox(width: 5,),
@@ -95,13 +113,41 @@ class _LoginSignup extends State<LoginSignup>
                        MaterialButton(onPressed: (){
                          if(_formKey.currentState.validate())
                          {
+
+                           _mobile_no = _editingController.text;
+
+                           CheckMobileno cm = new CheckMobileno();
+                           cm.checkMobile(_country_code+_mobile_no).then((value){
+                             if(value == null)
+                             {
+                               Navigator.push(
+                                 context,
+                                 MaterialPageRoute(builder: (context) => OTPVerification(_country_code,_mobile_no)),
+                               );
+                             }
+                             else {
+                               Navigator.push(
+                                 context,
+                                 MaterialPageRoute(builder: (context) => HomeScreen(value)),
+                               );
+                               Fluttertoast.showToast(
+                                 msg: "welcome",
+                                 toastLength: Toast.LENGTH_SHORT,
+                                 gravity: ToastGravity.BOTTOM,
+                                 timeInSecForIosWeb: 1,
+                                 backgroundColor: Color.fromRGBO(0, 0, 102, 1),
+                                 textColor: Colors.white,
+                                 fontSize: 16.0,
+                               );
+                             }
+                           });
+
+
+
+
                           // print(_editingController.text);
 
                            //pushData();
-                           Navigator.push(
-                             context,
-                             MaterialPageRoute(builder: (context) => OTPVerification()),
-                           );
                          }
                        },
                            padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
@@ -120,17 +166,13 @@ class _LoginSignup extends State<LoginSignup>
                    ),
                  ),
                ),
-             ],
-            ),
+             ),
+           ],
           ),
-        ),
       )
     );
   }
 
-  List<Country> _companies = Country.getCompanies();
-  List<DropdownMenuItem<Country>> _dropdownMenuItems;
-  Country _selectedCompany;
   final _formKey = GlobalKey<FormState>();
 
   @override
@@ -138,29 +180,11 @@ class _LoginSignup extends State<LoginSignup>
 
     _scrollController = new ScrollController();
     _editingController = new TextEditingController();
-    _dropdownMenuItems = buildDropdownMenuItems(_companies);
-    _selectedCompany = _dropdownMenuItems[0].value;
+
     super.initState();
   }
 
-  List<DropdownMenuItem<Country>> buildDropdownMenuItems(List companies) {
-    List<DropdownMenuItem<Country>> items = List();
-    for (Country country in companies) {
-      items.add(
-        DropdownMenuItem(
-          value: country,
-          child: Text(country.name),
-        ),
-      );
-    }
-    return items;
-  }
 
-  onChangeDropdownItem(Country selectedCompany) {
-    setState(() {
-      _selectedCompany = selectedCompany;
-    });
-  }
   Widget getLogo()
   {
     return Row(
@@ -181,38 +205,6 @@ class _LoginSignup extends State<LoginSignup>
     );
   }
 
-  // final firestoreInstance = Firestore.instance;
-  //
-  // void pushData() {
-  //   firestoreInstance.collection("users").add(
-  //       {
-  //         "name" : "john",
-  //         "age" : 50,
-  //         "email" : "example@example.com",
-  //         "address" : {
-  //           "street" : "street 24",
-  //           "city" : "new york"
-  //         }
-  //       }).then((value){
-  //     print(value.documentID);
-  //   });
-  //}
-
-}
-
-class Country {
-  int id;
-  String name;
-  String c_name;
-
-  Country(this.id, this.name,this.c_name);
-
-  static List<Country> getCompanies() {
-    return <Country>[
-      Country(1, '+1',"USA"),
-      Country(91, '+91',"IND"),
-    ];
-  }
 
 }
 

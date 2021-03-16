@@ -34,6 +34,21 @@ dependencies:
   google_maps_flutter: ^1.2.0
   geolocator: ^6.2.1
   geocoder: ^0.2.1
+  amplify_flutter: '<1.0.0'
+  amplify_auth_cognito: '<1.0.0'
+  amplify_analytics_pinpoint: '<1.0.0'
+  amplify_datastore: '<1.0.0'
+  amplify_core: '<1.0.0'
+  amplify_api: '<1.0.0'
+  font_awesome_flutter: ^8.11.0
+  fluttertoast: ^7.1.8
+  country_code_picker: ^1.7.0
+  uuid: 2.2.2
+  amplify_storage_s3: '<1.0.0'
+  fdottedline: ^1.0.1
+  flutter_slidable: ^0.5.7
+
+
 
 dev_dependencies:
   flutter_test:

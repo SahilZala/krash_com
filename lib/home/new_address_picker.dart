@@ -5,16 +5,26 @@ import 'package:flutter/material.dart';
 import 'package:geocoder/geocoder.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'home_screen.dart';
+
+import 'package:krash_company/DatabaseConnection/update_client_data.dart';
+import 'package:krash_company/home/home_screen.dart';
 
 class NewAddressPicker extends StatefulWidget
 {
-  _NewAddressPicker createState() => _NewAddressPicker();
+  Map data;
+
+  NewAddressPicker(this.data);
+
+  _NewAddressPicker createState() => _NewAddressPicker(data);
 
 }
 
 class _NewAddressPicker extends State<NewAddressPicker>
 {
+  Map  data;
+
+  _NewAddressPicker(this.data);
+
   Completer<GoogleMapController> _controller = Completer();
   LatLng ll;
   final Set<Marker> _markers = {};
@@ -229,10 +239,17 @@ class _NewAddressPicker extends State<NewAddressPicker>
 
                   ),
                   child: RaisedButton(onPressed: (){
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => HomeScreen(location)),
-                    );
+                   UpdateClientData ucd = UpdateClientData(data["mobileno"],data["userid"],location,ll.latitude.toString(),ll.longitude.toString(),"date","time",data["id"]);
+
+                   ucd.updateData().then((value){
+                     if(value != null)
+                     {
+                       Navigator.pushReplacement(
+                         context,
+                         MaterialPageRoute(builder: (context) => HomeScreen(value)),
+                       );
+                     }
+                   });
                   },
                     elevation: 5,
                     color: Color.fromRGBO(0,0,102, 1),
@@ -264,6 +281,9 @@ class _NewAddressPicker extends State<NewAddressPicker>
             _markers.clear();
             _markers.add(Marker(markerId: MarkerId(ll.toString()),position: ll,infoWindow: InfoWindow(title: "sasa",snippet: "sasasa"),icon: BitmapDescriptor.defaultMarker));
             _goToPosition(ll);
+
+            _determinePosition();
+
           });
         },
       ),
@@ -331,9 +351,5 @@ class _NewAddressPicker extends State<NewAddressPicker>
 
       });
     });
-
-
   }
-
-
 }

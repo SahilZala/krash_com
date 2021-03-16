@@ -9,11 +9,10 @@ import 'package:krash_company/home/profile.dart';
 
 class HomeScreen extends StatefulWidget
 {
-  String address = "";
-  _HomeScreen createState() => _HomeScreen(address);
-  HomeScreen(address){
-    this.address = address;
-  }
+  Map data;
+  _HomeScreen createState() => _HomeScreen(data);
+
+  HomeScreen(this.data);
 }
 class _HomeScreen extends State<StatefulWidget>
 {
@@ -26,12 +25,10 @@ class _HomeScreen extends State<StatefulWidget>
     'https://www.columbiatireauto.com/Portals/7/soft-touch-car-wash-pros-cons.PNG'
   ];
 
-  String address = "";
+  Map data;
 
-  _HomeScreen(address){
 
-    this.address = address;
-  }
+  _HomeScreen(this.data);
 
   final List<String> _appTitle = ["Home","Bookings","Profile"];
 
@@ -48,7 +45,8 @@ class _HomeScreen extends State<StatefulWidget>
   @override
   void initState() {
 
-    print(address);
+    print("home");
+    print(data);
   }
 
   GlobalKey _scaffoldKey = new GlobalKey();
@@ -274,7 +272,7 @@ class _HomeScreen extends State<StatefulWidget>
 
           GestureDetector(
             onTap: (){
-              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => NewAddressPicker()));
+              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => NewAddressPicker(data)));
             },
             child: Container(
               width:MediaQuery.of(context).size.width/1.11,
@@ -283,7 +281,7 @@ class _HomeScreen extends State<StatefulWidget>
                 child: Row(
                   children: [
                     Text(
-                        address,
+                        data["address"],
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 15,
