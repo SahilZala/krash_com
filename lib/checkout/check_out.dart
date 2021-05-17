@@ -1,10 +1,31 @@
+import 'dart:math';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class CheckOut extends StatefulWidget{
-  _CheckOut createState() => _CheckOut();
+  dynamic data;
+  _CheckOut createState() => _CheckOut(data);
+
+  CheckOut(this.data);
 }
 class _CheckOut extends State<CheckOut>{
+
+  dynamic data;
+  double total = 0;
+  double cgst = 0;
+  double sgst = 0;
+  double discount = 0;
+
+  _CheckOut(this.data){
+   total = double.parse(data['price']) + cgst + sgst;
+
+   total = total - discount;
+
+  }
+
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -54,7 +75,7 @@ class _CheckOut extends State<CheckOut>{
                                 child: Container(
                                   alignment: Alignment.centerRight,
                                   child: Text(
-                                    "Rs. 899/-",
+                                    "Rs. "+data['price']+" /-",
                                     style: TextStyle(
                                         color: Color.fromRGBO(0,0,102, 1),
                                         fontSize: 20
@@ -91,48 +112,9 @@ class _CheckOut extends State<CheckOut>{
                                 child: Container(
                                   alignment: Alignment.centerRight,
                                   child: Text(
-                                    "Rs. 199/-",
+                                    "Rs. $discount"+" /-",
                                     style: TextStyle(
                                         color: Colors.green,
-                                        fontSize: 20
-                                    ),
-                                  ),
-                                ),
-                              ),
-
-
-
-                            ],
-                          ),
-                        ),
-
-
-
-                        Container(
-                          padding: EdgeInsets.fromLTRB(15, 7.5, 15, 7.5),
-                          child: Row(
-                            children: [
-
-                              Expanded(
-                                child: Container(
-                                  child: Text(
-                                    "Dilevery charges",
-                                    style: TextStyle(
-                                        color: Colors.grey,
-                                        fontSize: 20
-                                    ),
-                                  ),
-                                ),
-                              ),
-
-
-                              Expanded(
-                                child: Container(
-                                  alignment: Alignment.centerRight,
-                                  child: Text(
-                                    "Rs. 0/-",
-                                    style: TextStyle(
-                                        color: Colors.grey,
                                         fontSize: 20
                                     ),
                                   ),
@@ -170,7 +152,7 @@ class _CheckOut extends State<CheckOut>{
                                 child: Container(
                                   alignment: Alignment.centerRight,
                                   child: Text(
-                                    "Rs. 0/-",
+                                    "Rs. $cgst /-",
                                     style: TextStyle(
                                         color: Colors.grey,
                                         fontSize: 20
@@ -209,7 +191,7 @@ class _CheckOut extends State<CheckOut>{
                                 child: Container(
                                   alignment: Alignment.centerRight,
                                   child: Text(
-                                    "Rs. 0/-",
+                                    "Rs. $sgst /-",
                                     style: TextStyle(
                                         color: Colors.grey,
                                         fontSize: 20
@@ -254,7 +236,7 @@ class _CheckOut extends State<CheckOut>{
                                 child: Container(
                                   alignment: Alignment.centerRight,
                                   child: Text(
-                                    "Rs. 700/-",
+                                    "Rs. $total"+"  /-",
                                     style: TextStyle(
                                         color: Color.fromRGBO(0,0,102, 1),
                                         fontSize: 20,
@@ -307,8 +289,7 @@ class _CheckOut extends State<CheckOut>{
 
 
           getListOfItems(),
-          getListOfItems(),
-          getListOfItems(),
+
 
 
         ],
@@ -342,7 +323,7 @@ class _CheckOut extends State<CheckOut>{
                         margin: EdgeInsets.fromLTRB(5, 5, 0, 0),
                         alignment: Alignment.centerLeft,
                         color: Colors.white,
-                        child: Text("Car Washing",style: TextStyle(
+                        child: Text(""+data['servicename'],style: TextStyle(
                             color: Color.fromRGBO(102,0,0, 102),
                             fontSize: 25,
                             fontWeight: FontWeight.bold
@@ -362,25 +343,7 @@ class _CheckOut extends State<CheckOut>{
                     ],
                   )
               ),
-              Expanded(
-                  child: Container(
-                      margin: EdgeInsets.fromLTRB(5, 5, 5, 5),
-                      height: 50,
-                      width: 20,
-                      alignment: Alignment.centerRight,
-                      child: MaterialButton(
-                        onPressed: (){},
-                        child: Text(
-                          "CANCEL",
-                          style: TextStyle(
-                              color: Color.fromRGBO(122, 150, 240, 1)
-                          ),
-                        ),
-                        color: Colors.white,
-                        elevation: 5,
-                      )
-                  )
-              ),
+
             ],
           ),
 
@@ -391,7 +354,7 @@ class _CheckOut extends State<CheckOut>{
 
             alignment: Alignment.centerRight,
             child: Text(
-              "Rs. 99/-",
+              "Rs. $total /-",
               style: TextStyle(
                   color: Colors.green,
                   fontSize: 20,
@@ -486,9 +449,9 @@ class _CheckOut extends State<CheckOut>{
 
                       child: MaterialButton(
                         onPressed: (){
-                          Navigator.push(context,
-                            MaterialPageRoute(builder: (context) => CheckOut()),
-                          );
+                          // Navigator.push(context,
+                          //   MaterialPageRoute(builder: (context) => CheckOut()),
+                          // );
                         },
                         child: Text(
                           "CHECK",
@@ -538,8 +501,10 @@ class _CheckOut extends State<CheckOut>{
                 ),
                 child: Row(
                   children: [
-                    Expanded(child: Container(child: Text("Date",style: TextStyle(color: Colors.white,fontSize: 20,fontWeight: FontWeight.bold,),),padding: EdgeInsets.fromLTRB(20, 5, 10, 5),)),
-                    Expanded(child: Container(alignment: Alignment.centerRight,child: Icon(Icons.date_range,size: 25,color: Colors.white,),padding: EdgeInsets.fromLTRB(20, 5, 20, 5),))
+                    Expanded(child: Container(child: Text("$formattedDate",style: TextStyle(color: Colors.white,fontSize: 20,fontWeight: FontWeight.bold,),),padding: EdgeInsets.fromLTRB(20, 5, 10, 5),)),
+                    Expanded(child: GestureDetector(onTap: (){
+                      _selectDate(context);
+                    },child: Container(alignment: Alignment.centerRight,child: Icon(Icons.date_range,size: 25,color: Colors.white,),padding: EdgeInsets.fromLTRB(20, 5, 20, 5),)))
                   ],
                 ),
               ),
@@ -561,12 +526,37 @@ class _CheckOut extends State<CheckOut>{
                 width: MediaQuery.of(context).size.width,
                 child: Wrap(
                   children: [
-                    getTime("5:00 PM - 5:30 PM"),
-                    getTime("5:30 PM - 6:00 PM"),
-                    getTime("6:00 PM - 6:30 PM"),
-                    getTime("6:30 PM - 7:00 PM"),
-                    getTime("7:00 PM - 7:30 PM"),
-                    getTime("7:30 PM - 8:00 PM"),
+                    GestureDetector(onTap:(){
+                      setState(() {
+                        timezone = 0;
+                      });
+                    },child: Container(child: getTime("5:00 PM - 5:30 PM"),decoration: BoxDecoration(color: timezone == 0 ? Colors.red : Colors.transparent),)),
+                    GestureDetector(onTap:(){
+                      setState(() {
+                        timezone = 1;
+                      });
+                    },child: Container(child: getTime("5:30 PM - 6:00 PM"),decoration: BoxDecoration(color: timezone == 1 ? Colors.red : Colors.transparent),)),
+                    GestureDetector(onTap:(){
+                      setState(() {
+                        timezone = 2;
+                      });
+                    },child: Container(child: getTime("6:00 PM - 6:30 PM"),decoration: BoxDecoration(color: timezone == 2 ? Colors.red : Colors.transparent),)),
+                    GestureDetector(onTap:(){
+                      setState(() {
+                        timezone = 3;
+                      });
+                    },child: Container(child: getTime("6:30 PM - 7:00 PM"),decoration: BoxDecoration(color: timezone == 3 ? Colors.red : Colors.transparent),)),
+                    GestureDetector(onTap:(){
+                      setState(() {
+                        timezone = 4;
+                      });
+                    },child: Container(child: getTime("7:00 PM - 7:30 PM"),decoration: BoxDecoration(color: timezone == 4 ? Colors.red : Colors.transparent),)),
+                    GestureDetector(onTap:(){
+                      setState(() {
+                        timezone = 5;
+                      });
+                    },child: Container(child: getTime("7:30 PM - 8:00 PM"),decoration: BoxDecoration(color: timezone == 5 ? Colors.red : Colors.transparent),)),
+
                   ],
                 ),
               ),
@@ -578,6 +568,8 @@ class _CheckOut extends State<CheckOut>{
       ],
     );
   }
+
+  int timezone = -1;
 
   Widget getTime(var time)
   {
@@ -601,4 +593,22 @@ class _CheckOut extends State<CheckOut>{
     );
 
   }
+
+  DateTime selectedDate = DateTime.now();
+  var formattedDate = "date";
+
+      Future<void> _selectDate(BuildContext context) async {
+    final DateTime picked = await showDatePicker(
+        context: context,
+        initialDate: selectedDate,
+        firstDate: DateTime.now(),
+        lastDate: DateTime(2101));
+    if (picked != null && picked != selectedDate)
+      setState(() {
+        selectedDate = picked;
+        var dateParse = DateTime.parse(picked.toString());
+        formattedDate = "${dateParse.day}-${dateParse.month}-${dateParse.year}";
+      });
+  }
+
 }

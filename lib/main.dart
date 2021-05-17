@@ -46,6 +46,8 @@ class _SplashScreen extends State<SplashScreen> {
 
     _configureAmplify();
 
+    //pushTodo();
+
     // Timer(Duration(seconds: 3),
     //         () =>
     //         Navigator.pushReplacement(context,
@@ -122,7 +124,7 @@ class _SplashScreen extends State<SplashScreen> {
 
 
 
-        getData();
+        //getData();
 
         Timer(Duration(seconds: 3),
                 () =>
@@ -140,44 +142,70 @@ class _SplashScreen extends State<SplashScreen> {
   }
 
 
-  Future<List> getData()
-  async {
+  Future<void> pushTodo() async {
     try {
-      Map userData = null;
-      String graphQLDocument = '''query ListUserDatas {
-      listUserDatas {
-        items {
-          id
-          userid
-          name
-          mail
-          city
-          address
-          lat
-          log
-          mobileno
-          time
-          date
-          profile
-          activation
-        }
-        nextToken
-      }
-    }''';
+      String graphQLDocument =
+      '''mutation CreateTodo(\$name: String!, \$description: String) {
+              createTodo(input: {name: \$name, description: \$description}) {
+                id
+                name
+                description
+              }
+        }''';
 
-      var operation = Amplify.API.query(
-          request: GraphQLRequest<String>(
-            document: graphQLDocument,
-          ));
+      var operation = Amplify.API.mutate(
+          request: GraphQLRequest<String>(document: graphQLDocument, variables: {
+            'name': 'my first sahil todo',
+            'description': 'todo description',
+          }));
 
       var response = await operation.response;
       var data = response.data;
 
-      print('Query result: ' + data);
-
+      print('Mutation result: $data');
     } on ApiException catch (e) {
-      print('Query failed: $e');
+      print('Mutation failed: $e');
     }
   }
+
+  // Future<List> getData()
+  // async {
+  //   try {
+  //     Map userData = null;
+  //     String graphQLDocument = '''query ListUserDatas {
+  //     listUserDatas {
+  //       items {
+  //         id
+  //         userid
+  //         name
+  //         mail
+  //         city
+  //         address
+  //         lat
+  //         log
+  //         mobileno
+  //         time
+  //         date
+  //         profile
+  //         activation
+  //       }
+  //       nextToken
+  //     }
+  //   }''';
+  //
+  //     var operation = Amplify.API.query(
+  //         request: GraphQLRequest<String>(
+  //           document: graphQLDocument,
+  //         ));
+  //
+  //     var response = await operation.response;
+  //     var data = response.data;
+  //
+  //     print('Query result: ' + data);
+  //
+  //   } on ApiException catch (e) {
+  //     print('Query failed: $e');
+  //   }
+  // }
 
 }

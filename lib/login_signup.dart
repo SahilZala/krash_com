@@ -140,6 +140,8 @@ class _LoginSignup extends State<LoginSignup>
                                  fontSize: 16.0,
                                );
                              }
+                           }).catchError((onError){
+                             print(onError);
                            });
 
 

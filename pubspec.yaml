@@ -47,6 +47,7 @@ dependencies:
   amplify_storage_s3: '<1.0.0'
   fdottedline: ^1.0.1
   flutter_slidable: ^0.5.7
+  flutter_rating_bar: ^4.0.0
 
 
 

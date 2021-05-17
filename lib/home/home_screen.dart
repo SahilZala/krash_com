@@ -1,7 +1,10 @@
+import 'dart:math';
+
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:krash_company/DatabaseConnection/get_orders_data.dart';
 import 'package:krash_company/carselection/package_selection.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:krash_company/home/new_address_picker.dart';
@@ -19,7 +22,7 @@ class _HomeScreen extends State<StatefulWidget>
   final List<String> imgList = [
     'https://addressautoworkshop.com/wp-content/uploads/2020/05/Car-Wash-Image.jpg',
     'https://hips.hearstapps.com/hmg-prod.s3.amazonaws.com/images/soap-suds-and-water-on-car-royalty-free-image-1588968576.jpg',
-    'https://cimg1.ibsrv.net/cimg/www.audiworld.com/1600x900_85-1/529/Best-Car-Wash-Best-of-Western-Washington-2016-Vote-NorthWest-Auto-Salon-17-362529.jpg',
+    'https://images.unsplash.com/photo-1552930294-6b595f4c2974?ixid=MXwxMjA3fDB8MHxzZWFyY2h8M3x8Y2FyJTIwd2FzaHxlbnwwfHwwfA%3D%3D&ixlib=rb-1.2.1&w=1000&q=80',
     'https://yourdoorstep.co/gallery/car-wash-near-me.jpg',
     'https://junkmailimages.blob.core.windows.net/large/65240ddaa07d44a68c4d6e111351c623.jpg',
     'https://www.columbiatireauto.com/Portals/7/soft-touch-car-wash-pros-cons.PNG'
@@ -47,6 +50,9 @@ class _HomeScreen extends State<StatefulWidget>
 
     print("home");
     print(data);
+
+    go = new GetOrderData();
+    orders_widget_list = new List();
   }
 
   GlobalKey _scaffoldKey = new GlobalKey();
@@ -55,7 +61,7 @@ class _HomeScreen extends State<StatefulWidget>
   Widget build(BuildContext context) {
     _widgetOptions = <Widget>[
       getOfferBanner(),
-      Text('Bookings', style: TextStyle(fontSize: 35, fontWeight: FontWeight.bold)),
+      getBookingServiceList(),
       getProfile(),
     ];
 
@@ -69,8 +75,8 @@ class _HomeScreen extends State<StatefulWidget>
             color: Colors.white
           ),),
           backgroundColor: Color.fromRGBO(0,0,102, 1),
-
           elevation: 0,
+
         ),
 
       bottomNavigationBar:BottomNavigationBar(
@@ -84,11 +90,11 @@ class _HomeScreen extends State<StatefulWidget>
         items: [
           BottomNavigationBarItem(
             title: Text('HOME'),
-            icon: Icon(Icons.book_online_outlined),
+            icon: Icon(Icons.dashboard),
           ),
           BottomNavigationBarItem(
             title: Text('BOOKINGS'),
-            icon: Icon(Icons.dashboard),
+            icon: Icon(Icons.book_online),
           ),
           BottomNavigationBarItem(
             title: Text('PROFILE'),
@@ -97,14 +103,16 @@ class _HomeScreen extends State<StatefulWidget>
         ],
       ),
 
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            getAddress(),
-            Center(
-              child: _widgetOptions.elementAt(_selectedIndex),
-            ),
-          ],
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              getAddress(),
+              Center(
+                child: _widgetOptions.elementAt(_selectedIndex),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -315,7 +323,7 @@ class _HomeScreen extends State<StatefulWidget>
               onTap: (){
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => PackageSelection()),
+                  MaterialPageRoute(builder: (context) => PackageSelection(data,"Car Washing")),
                 );
               },
               child: Column(
@@ -335,7 +343,7 @@ class _HomeScreen extends State<StatefulWidget>
                   ),
 
                   Text(
-                    "car washing",
+                    "car Washing",
                     style: TextStyle(
                       color: Color.fromRGBO(52, 73, 94, 1),
                       fontSize: 15,
@@ -349,97 +357,126 @@ class _HomeScreen extends State<StatefulWidget>
           Expanded(child: Container(
             margin: EdgeInsets.all(2),
 
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  height: 50,
-                  width: 50,
-                  decoration: BoxDecoration(
-                      image: DecorationImage(
-                          image: AssetImage(
-                              "images/car_service.png"
-                          )
-                      )
+            child: GestureDetector(
+              onTap: (){
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => PackageSelection(data,"Car Repairing")),
+                );
+              },
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    height: 50,
+                    width: 50,
+                    decoration: BoxDecoration(
+                        image: DecorationImage(
+                            image: AssetImage(
+                                "images/car_service.png"
+                            )
+                        )
+                    ),
                   ),
-                ),
 
-                Text(
-                  "car repairing",
-                  style: TextStyle(
-                    color: Color.fromRGBO(52, 73, 94, 1),
-                    fontSize: 15,
+                  Text(
+                    "Car Repairing",
+                    style: TextStyle(
+                      color: Color.fromRGBO(52, 73, 94, 1),
+                      fontSize: 15,
+                    ),
+                    textAlign: TextAlign.center,
                   ),
-                  textAlign: TextAlign.center,
-                ),
-              ],
+                ],
+              ),
             ),
           )),
           Expanded(child: Container(
             margin: EdgeInsets.all(2),
 
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  height: 50,
-                  width: 50,
-                  decoration: BoxDecoration(
-                      image: DecorationImage(
-                          image: AssetImage(
-                              "images/tier_installing.png"
-                          )
-                      )
+            child: GestureDetector(
+              onTap: (){
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => PackageSelection(data,"Equipment Installing")),
+                );
+              },
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    height: 50,
+                    width: 50,
+                    decoration: BoxDecoration(
+                        image: DecorationImage(
+                            image: AssetImage(
+                                "images/tier_installing.png"
+                            )
+                        )
+                    ),
                   ),
-                ),
 
-                Text(
-                  "equipment installing",
-                  style: TextStyle(
-                    color: Color.fromRGBO(52, 73, 94, 1),
-                    fontSize: 15,
+                  Text(
+                    "Equipment Installing",
+                    style: TextStyle(
+                      color: Color.fromRGBO(52, 73, 94, 1),
+                      fontSize: 15,
+                    ),
+                    textAlign: TextAlign.center,
                   ),
-                  textAlign: TextAlign.center,
-                ),
-              ],
+                ],
+              ),
             ),
           )),
           Expanded(child: Container(
             margin: EdgeInsets.all(2),
 
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  height: 50,
-                  width: 50,
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: AssetImage(
-                        "images/tier_repairing.png"
+            child: GestureDetector(
+              onTap: (){
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => PackageSelection(data,"Tyres and Wheel Care")),
+                );
+              },
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    height: 50,
+                    width: 50,
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image: AssetImage(
+                          "images/tier_repairing.png"
+                        )
                       )
-                    )
+                    ),
                   ),
-                ),
 
-                Text(
-                  "tier repairing",
-                  style: TextStyle(
-                    color: Color.fromRGBO(52, 73, 94, 1),
-                    fontSize: 15,
+                  Text(
+                    "Tier Repairing",
+                    style: TextStyle(
+                      color: Color.fromRGBO(52, 73, 94, 1),
+                      fontSize: 15,
+                    ),
+                    textAlign: TextAlign.center,
                   ),
-                  textAlign: TextAlign.center,
-                ),
-              ],
+                ],
+              ),
             ),
           ))
         ],
       ),
     );
   }
+
+
+
+  // thus mnkjnnm mn jn hbh n
+
 
   Widget getCarService()
   {
@@ -898,4 +935,116 @@ class _HomeScreen extends State<StatefulWidget>
         }
     );
   }
+
+  GetOrderData go;
+
+
+  List<Widget> orders_widget_list;
+
+  Widget getBookingServiceList()
+  {
+    return FutureBuilder(builder: (ctx,snapshot){
+
+      if(snapshot.connectionState == ConnectionState.done)
+      {
+        if(snapshot.hasData)
+        {
+          orders_widget_list.clear();
+          for(int i=0;i<snapshot.data.length;i++)
+          {
+            print(snapshot.data[i]);
+
+            orders_widget_list.add(getMyOrders(snapshot.data[i]));
+          }
+          return SingleChildScrollView(padding: EdgeInsets.fromLTRB(10, 10, 10, 10), child: Column(children: orders_widget_list));
+        }
+        else if(snapshot.hasError)
+        {
+          return Text("no data found");
+        }
+      }
+
+      // print("testmode");
+      // print(snapshot.data);
+      // return getMyOrders();
+      return CircularProgressIndicator();
+    },
+      future: go.getOrderData(data['id']),
+    );
+  }
+
+  Widget getMyOrders(odata)
+  {
+    return Container(
+      width: MediaQuery.of(context).size.width,
+      padding: EdgeInsets.all(10),
+      margin: EdgeInsets.fromLTRB(0, 5, 0, 5),
+      decoration: BoxDecoration(
+        color: Colors.white,
+      ),
+
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(odata['servicename'],
+            style: TextStyle(
+            color: Color.fromRGBO(0,0,102, 1),
+            fontSize: 25,
+            fontFamily: "sairasemi",
+
+            fontWeight: FontWeight.bold,
+            ),
+          ),
+          SizedBox(
+            height: 10,
+          ),
+
+          Row(
+            children: [
+              Expanded(
+                child: Text(odata['ondate']+" --- "+odata['ontime'],
+                style: TextStyle(
+                  color: Color.fromRGBO(102,102,102, 1),
+                  fontSize: 18,
+                  fontFamily: "sairasemi",
+                ),
+                ),
+              ),
+
+              Expanded(
+                child: Text("Rs. "+odata['price']+' /-',
+                  textAlign: TextAlign.end,
+                  style: TextStyle(
+                    color: Color.fromRGBO(22,22,22, 1),
+                    fontSize: 20,
+                    fontFamily: "sairasemi",
+                  ),
+                ),
+              ),
+
+
+            ],
+          ),
+
+          SizedBox(height: 10,),
+
+          Text(odata['status'],
+            style: TextStyle(
+              color: Color.fromRGBO(100,100,100, 1),
+              fontSize: 25,
+              fontFamily: "sairasemi",
+              fontWeight: FontWeight.bold
+            ),
+          )
+
+        ],
+      ),
+    );
+  }
+
+
+
+
+
 }

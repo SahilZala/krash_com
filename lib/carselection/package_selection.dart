@@ -1,14 +1,25 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:krash_company/serviceselection/service_selection.dart';
+import 'package:krash_company/serviceselection/_new_service_selection.dart';
 
 class PackageSelection extends StatefulWidget
 {
-  _PackageSelection createState() => _PackageSelection();
+  Map data;
+  String service_name;
+  _PackageSelection createState() => _PackageSelection(data,service_name);
+
+  PackageSelection(this.data, this.service_name);
 }
 
 class _PackageSelection extends State<PackageSelection>
 {
+  Map data;
+  String service_name;
+
+
+  _PackageSelection(this.data, this.service_name);
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -22,7 +33,6 @@ class _PackageSelection extends State<PackageSelection>
               // up the list of items.
               floating: true,
               pinned: true,
-
 
               // Display a placeholder widget to visualize the shrinking size.
               flexibleSpace: FlexibleSpaceBar(
@@ -63,9 +73,7 @@ class _PackageSelection extends State<PackageSelection>
                       ),
                     ),
 
-
                     getDesingPattern(),
-
 
                   ],
                 ),
@@ -129,7 +137,7 @@ class _PackageSelection extends State<PackageSelection>
                 child: GestureDetector(
                   onTap: (){
                     Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => ServiceSelection()),
+                      MaterialPageRoute(builder: (context) => ServiceSelection(data,service_name,"HATCHBACK")),
                       );
                   },
                   child: Column(
@@ -169,32 +177,39 @@ class _PackageSelection extends State<PackageSelection>
                 decoration: BoxDecoration(
                   border: Border.all(width: 1,color: Color.fromRGBO(243, 243, 243, 1)),
                 ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
+                child: GestureDetector(
+                  onTap: (){
+                    Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => ServiceSelection(data,service_name,"SEDAN")),
+                    );
+                  },
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
 
-                  children: [
-                    Container(
-                      margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
-                      height: 65,
-                      width: 65,
-                      decoration: BoxDecoration(
-                          image: DecorationImage(image: AssetImage(
-                              "images/sedan.jpg"
-                          ),fit: BoxFit.cover),
-                          shape: BoxShape.circle,
-                          color: Colors.black
+                    children: [
+                      Container(
+                        margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                        height: 65,
+                        width: 65,
+                        decoration: BoxDecoration(
+                            image: DecorationImage(image: AssetImage(
+                                "images/sedan.jpg"
+                            ),fit: BoxFit.cover),
+                            shape: BoxShape.circle,
+                            color: Colors.black
+                        ),
                       ),
-                    ),
 
-                    Text(
-                      "SEDAN",
-                      style: TextStyle(
-                          color: Color.fromRGBO(112, 112, 112, 1),
-                          fontWeight: FontWeight.bold
-                      ),
-                    )
-                  ],
+                      Text(
+                        "SEDAN",
+                        style: TextStyle(
+                            color: Color.fromRGBO(112, 112, 112, 1),
+                            fontWeight: FontWeight.bold
+                        ),
+                      )
+                    ],
+                  ),
                 ),
               )),
 
@@ -204,34 +219,41 @@ class _PackageSelection extends State<PackageSelection>
                 decoration: BoxDecoration(
                   border: Border.all(width: 1,color: Color.fromRGBO(243, 243, 243, 1)),
                 ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
+                child: GestureDetector(
+                  onTap: (){
+                    Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => ServiceSelection(data,service_name,"SUB-COMPACT SUV")),
+                    );
+                  },
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
 
-                  children: [
-                    Container(
-                      margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
-                      height: 65,
-                      width: 65,
-                      decoration: BoxDecoration(
-                          image: DecorationImage(image: AssetImage(
-                              "images/ssuv.jpg"
-                          ),fit: BoxFit.cover),
-                          shape: BoxShape.circle,
-                          color: Colors.black
+                    children: [
+                      Container(
+                        margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                        height: 65,
+                        width: 65,
+                        decoration: BoxDecoration(
+                            image: DecorationImage(image: AssetImage(
+                                "images/ssuv.jpg"
+                            ),fit: BoxFit.cover),
+                            shape: BoxShape.circle,
+                            color: Colors.black
+                        ),
                       ),
-                    ),
 
-                    Text(
-                      "SUB-COMPACT SUV",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          color: Color.fromRGBO(112, 112, 112, 1),
-                          fontWeight: FontWeight.bold,
+                      Text(
+                        "SUB-COMPACT SUV",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            color: Color.fromRGBO(112, 112, 112, 1),
+                            fontWeight: FontWeight.bold,
 
-                      ),
-                    )
-                  ],
+                        ),
+                      )
+                    ],
+                  ),
                 ),
               )),
 
@@ -249,32 +271,39 @@ class _PackageSelection extends State<PackageSelection>
                 decoration: BoxDecoration(
                   border: Border.all(width: 1,color: Color.fromRGBO(243, 243, 243, 1)),
                 ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
+                child: GestureDetector(
+                  onTap: (){
+                    Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => ServiceSelection(data,service_name,"MUV-SUV")),
+                    );
+                  },
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
 
-                  children: [
-                    Container(
-                      margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
-                      height: 65,
-                      width: 65,
-                      decoration: BoxDecoration(
-                          image: DecorationImage(image: AssetImage(
-                              "images/muvsuv.jpg"
-                          ),fit: BoxFit.cover),
-                          shape: BoxShape.circle,
-                          color: Colors.black
+                    children: [
+                      Container(
+                        margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                        height: 65,
+                        width: 65,
+                        decoration: BoxDecoration(
+                            image: DecorationImage(image: AssetImage(
+                                "images/muvsuv.jpg"
+                            ),fit: BoxFit.cover),
+                            shape: BoxShape.circle,
+                            color: Colors.black
+                        ),
                       ),
-                    ),
 
-                    Text(
-                      "MUV-SUV",
-                      style: TextStyle(
-                          color: Color.fromRGBO(112, 112, 112, 1),
-                          fontWeight: FontWeight.bold
-                      ),
-                    )
-                  ],
+                      Text(
+                        "MUV-SUV",
+                        style: TextStyle(
+                            color: Color.fromRGBO(112, 112, 112, 1),
+                            fontWeight: FontWeight.bold
+                        ),
+                      )
+                    ],
+                  ),
                 ),
               )),
 
@@ -285,32 +314,39 @@ class _PackageSelection extends State<PackageSelection>
                 decoration: BoxDecoration(
                   border: Border.all(width: 1,color: Color.fromRGBO(243, 243, 243, 1)),
                 ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
+                child: GestureDetector(
+                  onTap: (){
+                    Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => ServiceSelection(data,service_name,"LUXURY")),
+                    );
+                  },
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
 
-                  children: [
-                    Container(
-                      margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
-                      height: 65,
-                      width: 65,
-                      decoration: BoxDecoration(
-                          image: DecorationImage(image: AssetImage(
-                              "images/luxury.jpg"
-                          ),fit: BoxFit.cover),
-                          shape: BoxShape.circle,
-                          color: Colors.black
+                    children: [
+                      Container(
+                        margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                        height: 65,
+                        width: 65,
+                        decoration: BoxDecoration(
+                            image: DecorationImage(image: AssetImage(
+                                "images/luxury.jpg"
+                            ),fit: BoxFit.cover),
+                            shape: BoxShape.circle,
+                            color: Colors.black
+                        ),
                       ),
-                    ),
 
-                    Text(
-                      "LUXURY",
-                      style: TextStyle(
-                          color: Color.fromRGBO(112, 112, 112, 1),
-                          fontWeight: FontWeight.bold
-                      ),
-                    )
-                  ],
+                      Text(
+                        "LUXURY",
+                        style: TextStyle(
+                            color: Color.fromRGBO(112, 112, 112, 1),
+                            fontWeight: FontWeight.bold
+                        ),
+                      )
+                    ],
+                  ),
                 ),
               )),
 

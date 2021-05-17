@@ -62,6 +62,7 @@ class _NewAddressPicker extends State<NewAddressPicker>
 
   Future<void> _goToPosition(LatLng l)
   async{
+    this.ll = l;
     final GoogleMapController controller = await _controller.future;
 
     controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(target: l,bearing: 192.83,tilt: 10.55,zoom: 15.0)));
@@ -80,6 +81,7 @@ class _NewAddressPicker extends State<NewAddressPicker>
               onTap: (ll){
                 setState(() {
 
+                  this.ll = ll;
                   _markers.clear();
                   _markers.add(Marker(markerId: MarkerId(ll.toString()),position: ll,infoWindow: InfoWindow(title: "sasa",snippet: "sasasa"),icon: BitmapDescriptor.defaultMarker));
                   location = Geocoder.local.findAddressesFromCoordinates(Coordinates(ll.latitude,ll.longitude)).then((value){

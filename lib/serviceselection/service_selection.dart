@@ -1,28 +1,106 @@
+import 'dart:convert';
+
+import 'package:amplify_api/amplify_api.dart';
+import 'package:amplify_flutter/amplify.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:krash_company/checkout/check_out.dart';
+import 'package:krash_company/DatabaseConnection/get_services.dart';
 
 class ServiceSelection extends StatefulWidget{
-  _ServiceSelection createState() => _ServiceSelection();
+  Map data;
+  String service_name;
+  String car_type;
+  _ServiceSelection createState() => _ServiceSelection(data,service_name,car_type);
+
+  ServiceSelection(this.data, this.service_name, this.car_type);
 }
 
 class _ServiceSelection extends State<ServiceSelection> {
+  Map data;
+  String service_name;
+  String car_type;
+
+
+  var _service_data = null;
+  _ServiceSelection(this.data, this.service_name, this.car_type);
+
+  @override
+  void initState() {
+    super.initState();
+
+    GetService gs = new GetService(data,service_name,car_type);
+
+    setState(() {
+      _progress_indicator = 1;
+    });
+    gs.getServiceList().then((value){
+
+      if(value.isEmpty){
+        Fluttertoast.showToast(
+        msg: "Service not available",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.red[400],
+        textColor: Colors.white,
+        fontSize: 16.0
+        );
+
+        setState(() {
+
+          _progress_indicator = 0;
+        });
+      }
+      else{
+
+        setState(() {
+  //        print(rectifyData(value));
+          _service_data = value;
+
+
+          getServiceList();
+        });
+
+      }
+    });
+  }
+
+  int _progress_indicator = 0;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color.fromRGBO(243, 243, 243, 1),
       body: SafeArea(
         child: Stack(
+          alignment: Alignment.topCenter,
           children: [
             SingleChildScrollView(
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   getBannerTitle(),
-                  getCarWashingList()
+                  getCarWashingList(),
+                  SizedBox(height: 100,),
                 ],
               ),
             ),
-            getContainerForPrice()
+          //  getContainerForPrice(),
+
+
+
+            _progress_indicator == 1 ? Center(
+              child: CircularProgressIndicator( backgroundColor: Color.fromRGBO(0, 0, 102, 1),
+                valueColor: AlwaysStoppedAnimation(Colors.lightBlueAccent[100]),
+                strokeWidth: 6, ),
+            ) : SizedBox(),
+
+
+            //getContainerForPrice()
           ],
         ),
       ),
@@ -56,7 +134,7 @@ class _ServiceSelection extends State<ServiceSelection> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Hatchback",
+            car_type,
             style: TextStyle(
                 color: Color.fromRGBO(102,0,0, 102),
                 fontSize: 25,
@@ -140,23 +218,79 @@ class _ServiceSelection extends State<ServiceSelection> {
           .size
           .width,
       child: Column(
-        children: [
-          getCarWashingWidget(),
-          getCarWashingWidget(),
-          getCarWashingWidget(),
-          getCarWashingWidget(),
-        ],
+        children: _service_list_pointer == 1 ? _service_list : _service_list_pointer == 3 ? [Center(child: Text("Service not available in this area",style: TextStyle(fontSize: 20,color: Colors.red[200]),)),] : [],
       ),
     );
   }
 
-  Widget getCarWashingWidget()
+
+  int _service_list_pointer = 0;
+
+  List<Widget> _service_list = new List();
+
+  void getServiceList()
   {
+    setState(() {
+
+      if(_service_data != null){
+
+        _service_list.clear();
+        for(int i=0;i<_service_data.length;i++){
+
+          fetch_vendor_data(_service_data[i]["mobileno"], _service_data[i]["aid"]).then((value){
+            double distanceInMeters = Geolocator.distanceBetween(
+                double.parse(value["lat"]), double.parse(value["log"]),
+                double.parse(this.data["lat"]), double.parse(this.data["log"]));
+
+            if(distanceInMeters < 2000){
+
+              String id = _service_data[i]['serviceid'];
+
+              //print(_service_data[i]);
+
+              _service_list.add(getCarWashingWidget(_service_data[i],_service_list.length));
+              //_service_list.add(getCarWashingWidget(_service_data[i],_service_list.length));
+//
+           //   _service_list.add(ServiceComponent(_service_data[i],_service_list.length));
+            }
+
+
+            setState(() {
+              _progress_indicator = 0;
+              _service_list_pointer = 1;
+              if(distanceInMeters > 2000 && _service_list_pointer == 0){
+                _service_list_pointer = 3;
+              }
+            });
+          });
+        }
+      }
+      else{
+        _service_list.clear();
+        _service_list.add(Container(
+          height: MediaQuery.of(context).size.height/2,
+          width: MediaQuery.of(context).size.width,
+
+          child: Center(
+            child: Text("!Opps Service not available",style: TextStyle(color: Colors.black,fontSize: 30),),
+          ),
+
+        ));
+      }
+    });
+  }
+
+
+
+
+  Widget getCarWashingWidget(data,int index)
+  {
+    String id = data['serviceid'];
     return Container(
       margin: EdgeInsets.fromLTRB(0, 5, 0, 5),
       color: Colors.white,
       width: MediaQuery.of(context).size.width,
-      height: 300,
+      padding: EdgeInsets.fromLTRB(5, 5, 5, 5),
 
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -203,7 +337,7 @@ class _ServiceSelection extends State<ServiceSelection> {
                         margin: EdgeInsets.fromLTRB(5, 5, 0, 0),
                         alignment: Alignment.centerLeft,
                         color: Colors.white,
-                        child: Text("Car Washing",style: TextStyle(
+                        child: Text(data["servicename"],style: TextStyle(
                           color: Color.fromRGBO(0,0,102, 1),
                           fontSize: 25,
                           fontWeight: FontWeight.bold
@@ -229,10 +363,14 @@ class _ServiceSelection extends State<ServiceSelection> {
                     height: 50,
                     width: 20,
                     alignment: Alignment.centerRight,
-                    child: MaterialButton(
-                      onPressed: (){},
+                    child: RaisedButton(
+                      onPressed: (){
+                        Navigator.push(context,
+                          MaterialPageRoute(builder: (context) => CheckOut(data)),
+                        );
+                      },
                       child: Text(
-                          "ADD+",
+                        "CHECK+",
                         style: TextStyle(
                           color: Color.fromRGBO(122, 150, 240, 1)
                         ),
@@ -252,7 +390,7 @@ class _ServiceSelection extends State<ServiceSelection> {
 
             alignment: Alignment.centerRight,
             child: Text(
-              "Rs. 99/-",
+              data['price'],
               style: TextStyle(
                 color: Colors.green,
                 fontSize: 20,
@@ -262,7 +400,7 @@ class _ServiceSelection extends State<ServiceSelection> {
           ),
 
           Container(
-            height: 80,
+            height: 78,
             child: SingleChildScrollView(
               scrollDirection: Axis.vertical,
               child: Column(
@@ -286,7 +424,7 @@ class _ServiceSelection extends State<ServiceSelection> {
                     width: MediaQuery.of(context).size.width,
                     margin: EdgeInsets.fromLTRB(5, 5, 5, 5),
                     child: Text(
-                      "Detail about services and what your serving to us placed hereDetail about services and what your serving to us placed here,Detail about services and what your serving to us placed here,Detail about services and what your serving to us placed here",
+                      data["description"],
                       textAlign: TextAlign.justify,
                       style: TextStyle(
                           color: Colors.blueGrey,
@@ -298,8 +436,6 @@ class _ServiceSelection extends State<ServiceSelection> {
               ),
             ),
           ),
-
-
         ],
       ),
     );
@@ -358,7 +494,7 @@ class _ServiceSelection extends State<ServiceSelection> {
                   border: Border.all(color: Colors.white,width: 2.0)
                 ),
                 child: Text(
-                  "1",
+                  "0",
                   style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
@@ -383,9 +519,10 @@ class _ServiceSelection extends State<ServiceSelection> {
 
                       child: MaterialButton(
                         onPressed: (){
-                          Navigator.push(context,
-                            MaterialPageRoute(builder: (context) => CheckOut()),
-                          );
+                       //  print(isSelected);
+                       //    Navigator.push(context,
+                       //      MaterialPageRoute(builder: (context) => CheckOut()),
+                       //    );
                         },
                         child: Text(
                           "CHECK",
@@ -404,4 +541,68 @@ class _ServiceSelection extends State<ServiceSelection> {
       ],
     );
   }
+
+
+  // int i = 0;
+  // List<Map> new_service = new List();
+  //
+  //
+  // List rectifyData(List services)
+  // {
+  //   if(i==services.length){
+  //     print("end");
+  //     return services;
+  //   }
+  //   else{
+  //     fetch_vendor_data(services[i]["mobileno"], services[i]["aid"]).then((value){
+  //       double distanceInMeters = Geolocator.distanceBetween(
+  //           double.parse(value["lat"]), double.parse(value["log"]),
+  //           double.parse(this.data["lat"]), double.parse(this.data["log"]));
+  //
+  //
+  //       print(distanceInMeters);
+  //
+  //       if (distanceInMeters < 2000) {
+  //         new_service.add(services[i]);
+  //       }
+  //       i++;
+  //
+  //       print(new_service.length);
+  //       return rectifyData(new_service);
+  //     });
+  //   }
+  // }
+
+
+  Future<Map> fetch_vendor_data(String mob,String aid)
+  async {
+    var graphQLDocument = '''
+      query MyQuery {
+      listUserDatas(filter: {mobileno: {eq: "$mob"}, id: {eq: "$aid"}, activation: {eq: "true"}}) {
+        items {
+          id
+          lat
+          log
+          address
+          city
+        }
+      }
+    }
+    ''';
+
+    var operation = Amplify.API.query(
+        request: GraphQLRequest<String>(
+          document: graphQLDocument,
+        ));
+
+    var response = await operation.response;
+    Map val = json.decode(response.data);
+
+    return val["listUserDatas"]["items"][0];
+  }
+
+
+
+
 }
+
