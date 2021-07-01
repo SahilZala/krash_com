@@ -1,9 +1,13 @@
+import 'dart:convert';
 import 'dart:math';
 
+import 'package:amplify_api/amplify_api.dart';
+import 'package:amplify_flutter/amplify.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:krash_company/DatabaseConnection/get_orders_data.dart';
 import 'package:krash_company/carselection/package_selection.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
@@ -45,6 +49,7 @@ class _HomeScreen extends State<StatefulWidget>
 
   List<Widget> _widgetOptions;
 
+
   @override
   void initState() {
 
@@ -55,7 +60,7 @@ class _HomeScreen extends State<StatefulWidget>
     orders_widget_list = new List();
   }
 
-  GlobalKey _scaffoldKey = new GlobalKey();
+  GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
@@ -230,8 +235,6 @@ class _HomeScreen extends State<StatefulWidget>
           autoPlayInterval: Duration(seconds: 3),
           autoPlayAnimationDuration: Duration(milliseconds: 800),
           autoPlayCurve: Curves.fastOutSlowIn,
-
-
           scrollDirection: Axis.horizontal,
         ),
         items: imgList.map((item) => Container(
@@ -482,7 +485,7 @@ class _HomeScreen extends State<StatefulWidget>
   {
     return Container(
       margin: EdgeInsets.fromLTRB(5, 5, 5, 5),
-      height: 390,
+
       width: MediaQuery.of(context).size.width,
       decoration: BoxDecoration(
           color: Colors.white,
@@ -727,7 +730,6 @@ class _HomeScreen extends State<StatefulWidget>
         child: Column(
           children: [
             Container(
-              height: 90,
               width: MediaQuery.of(context).size.width,
               decoration: BoxDecoration(
                 color: Colors.white
@@ -736,13 +738,14 @@ class _HomeScreen extends State<StatefulWidget>
               child: Row(
                 children: [
                   Expanded(
+                    flex: 2,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Padding(
                           padding: const EdgeInsets.fromLTRB(10, 10, 0, 3),
-                          child: Text("User Name",style: TextStyle(
+                          child: Text(data['name'],style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
                             color: Color.fromRGBO(52, 73, 94, 1)
@@ -750,18 +753,18 @@ class _HomeScreen extends State<StatefulWidget>
                         ),
 
                         Padding(
-                          padding: const EdgeInsets.fromLTRB(10, 3, 0, 0),
-                          child: Text("main id",style: TextStyle(
-                              fontSize: 18,
+                          padding: const EdgeInsets.fromLTRB(10, 3, 3, 3),
+                          child: Text(data['mail'],style: TextStyle(
+                              fontSize: 15,
                             color: Colors.grey
                           ),),
                         ),
 
 
                         Padding(
-                          padding: const EdgeInsets.fromLTRB(10, 3, 0, 0),
-                          child: Text("mobile number",style: TextStyle(
-                              fontSize: 18,
+                          padding: const EdgeInsets.fromLTRB(10, 3, 3, 3),
+                          child: Text(data['mobileno'],style: TextStyle(
+                              fontSize: 15,
                               color: Colors.grey
                           ),),
                         )
@@ -770,14 +773,14 @@ class _HomeScreen extends State<StatefulWidget>
                     ),
                   ),
                   Expanded(
+                    flex:1,
                     child: Container(
-                      padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
-                      height: 80,
+                      padding: EdgeInsets.fromLTRB(10, 10, 15, 10),
                       width: 50,
                       child: GestureDetector(
                           onTap: (){
-                            Navigator.push(context,
-                              MaterialPageRoute(builder: (context) => Profile()),
+                            Navigator.pushReplacement(context,
+                              MaterialPageRoute(builder: (context) => Profile(data)),
                             );
                           },
                           child: Icon(Icons.edit,color: Color.fromRGBO(52, 73, 94, 1))),
@@ -975,76 +978,281 @@ class _HomeScreen extends State<StatefulWidget>
 
   Widget getMyOrders(odata)
   {
-    return Container(
-      width: MediaQuery.of(context).size.width,
-      padding: EdgeInsets.all(10),
-      margin: EdgeInsets.fromLTRB(0, 5, 0, 5),
-      decoration: BoxDecoration(
-        color: Colors.white,
-      ),
+    return GestureDetector(
+      onTap: (){
 
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(odata['servicename'],
-            style: TextStyle(
-            color: Color.fromRGBO(0,0,102, 1),
-            fontSize: 25,
-            fontFamily: "sairasemi",
+        if(odata['status'] == 'waiting')
+        {
+          Fluttertoast.showToast(
+            msg: "Steal in waiting",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Color.fromRGBO(0, 0, 102, 1),
+            textColor: Colors.white,
+            fontSize: 16.0,
+          );
+        }
+        else if(odata['status'] == 'confirm')
+        {
+          showBookedProductBottomSheet(odata);
+        }
 
-            fontWeight: FontWeight.bold,
-            ),
-          ),
-          SizedBox(
-            height: 10,
-          ),
+      },
+      child: Container(
+        width: MediaQuery.of(context).size.width,
+        padding: EdgeInsets.all(10),
+        margin: EdgeInsets.fromLTRB(0, 5, 0, 5),
+        decoration: BoxDecoration(
+          color: Colors.white,
+        ),
 
-          Row(
-            children: [
-              Expanded(
-                child: Text(odata['ondate']+" --- "+odata['ontime'],
-                style: TextStyle(
-                  color: Color.fromRGBO(102,102,102, 1),
-                  fontSize: 18,
-                  fontFamily: "sairasemi",
-                ),
-                ),
-              ),
-
-              Expanded(
-                child: Text("Rs. "+odata['price']+' /-',
-                  textAlign: TextAlign.end,
-                  style: TextStyle(
-                    color: Color.fromRGBO(22,22,22, 1),
-                    fontSize: 20,
-                    fontFamily: "sairasemi",
-                  ),
-                ),
-              ),
-
-
-            ],
-          ),
-
-          SizedBox(height: 10,),
-
-          Text(odata['status'],
-            style: TextStyle(
-              color: Color.fromRGBO(100,100,100, 1),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(odata['servicename'],
+              style: TextStyle(
+              color: Color.fromRGBO(0,0,102, 1),
               fontSize: 25,
               fontFamily: "sairasemi",
-              fontWeight: FontWeight.bold
-            ),
-          )
 
-        ],
+              fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(
+              height: 10,
+            ),
+
+            Row(
+              children: [
+                Expanded(
+                  child: Text(odata['ondate']+" --- "+odata['ontime'],
+                  style: TextStyle(
+                    color: Color.fromRGBO(102,102,102, 1),
+                    fontSize: 18,
+                    fontFamily: "sairasemi",
+                  ),
+                  ),
+                ),
+
+                Expanded(
+                  child: Text("Rs. "+odata['price']+' /-',
+                    textAlign: TextAlign.end,
+                    style: TextStyle(
+                      color: Color.fromRGBO(22,22,22, 1),
+                      fontSize: 20,
+                      fontFamily: "sairasemi",
+                    ),
+                  ),
+                ),
+
+
+              ],
+            ),
+
+            SizedBox(height: 10,),
+
+            Text(odata['status'],
+              style: TextStyle(
+                color: Color.fromRGBO(100,100,100, 1),
+                fontSize: 25,
+                fontFamily: "sairasemi",
+                fontWeight: FontWeight.bold
+              ),
+            )
+
+          ],
+        ),
       ),
     );
   }
 
 
+  void showBookedProductBottomSheet(orderdata)
+  {
+
+    fetch_vendor_data(orderdata['takenbyid']).then((value){
+      if(value != null)
+      {
+        _scaffoldKey.currentState.showBottomSheet((context){
+          return getProductBottomSheetItem(orderdata,value);
+        });
+      }
+    });
+  }
+
+  Widget getProductBottomSheetItem(odata,vdata)
+  {
+    return Container(
+      width: MediaQuery.of(context).size.width,
+
+      padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+
+            Icon(
+              Icons.drag_handle_sharp,
+              size: 30,
+            ),
+
+            Container(
+              width: MediaQuery.of(context).size.width,
+              padding: EdgeInsets.all(10),
+              margin: EdgeInsets.fromLTRB(0, 5, 0, 5),
+
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(odata['servicename'],
+                    style: TextStyle(
+                      color: Color.fromRGBO(0,0,102, 1),
+                      fontSize: 25,
+                      fontFamily: "sairasemi",
+
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(odata['ondate']+" --- "+odata['ontime'],
+                          style: TextStyle(
+                            color: Color.fromRGBO(102,102,102, 1),
+                            fontSize: 18,
+                            fontFamily: "sairasemi",
+                          ),
+                        ),
+                      ),
+
+                      Expanded(
+                        child: Text("Rs. "+odata['price']+' /-',
+                          textAlign: TextAlign.end,
+                          style: TextStyle(
+                            color: Color.fromRGBO(22,22,22, 1),
+                            fontSize: 20,
+                            fontFamily: "sairasemi",
+                          ),
+                        ),
+                      ),
 
 
+                    ],
+                  ),
+
+                  SizedBox(height: 10,),
+
+                  Text(odata['status'],
+                    style: TextStyle(
+                        color: Color.fromRGBO(100,100,100, 1),
+                        fontSize: 25,
+                        fontFamily: "sairasemi",
+                        fontWeight: FontWeight.bold
+                    ),
+                  )
+
+                ],
+              ),
+            ),
+
+            Container(
+              padding: EdgeInsets.fromLTRB(10, 10, 10, 5),
+              width: MediaQuery.of(context).size.width,
+              child: Text(
+                "Taken by",
+                style: TextStyle(
+                    color: Color.fromRGBO(42,42,42, 1),
+                    fontSize: 25,
+                    fontFamily: "sairasemi",
+                    fontWeight: FontWeight.bold
+                ),
+              )
+            ),
+
+            Container(
+                padding: EdgeInsets.fromLTRB(10, 5, 10, 10),
+                width: MediaQuery.of(context).size.width,
+                child: Text(
+                  vdata['name'],
+                  style: TextStyle(
+                      color: Color.fromRGBO(0,0,102, 1),
+                      fontSize: 25,
+                      fontFamily: "sairasemi",
+                      fontWeight: FontWeight.bold
+                  ),
+                )
+            ),
+
+            Container(
+                padding: EdgeInsets.fromLTRB(10, 5, 10, 10),
+                width: MediaQuery.of(context).size.width,
+                child: Text(
+                  vdata['address'],
+                  style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: 15,
+                      fontFamily: "sairasemi",
+
+                  ),
+                )
+            ),
+
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<Map> fetch_vendor_data(String userid)
+  async {
+    var graphQLDocument = '''
+      query MyQuery {
+      listUserDatas(limit: 1, filter: {userid: {eq: "$userid"}}) {
+        items {
+          activation
+          address
+          city
+          createdAt
+          date
+          id
+          lat
+          log
+          mail
+          mobileno
+          name
+          profile
+          time
+          updatedAt
+          userid
+        }
+      }
+    }
+    ''';
+
+    var operation = Amplify.API.query(
+        request: GraphQLRequest<String>(
+          document: graphQLDocument,
+        ));
+
+    var response = await operation.response;
+    Map val = json.decode(response.data);
+
+
+    print("code");
+    print(val["listUserDatas"]["items"][0]);
+
+
+    return val["listUserDatas"]["items"][0];
+
+
+    
+  }
 
 }

@@ -694,7 +694,7 @@ class _CheckOut extends State<CheckOut>{
     oc.placeOrder(orderid, userid, mobileno, address, lat, log, servicename,cartype, price, ontime, ondate, status, takenbyid, time, date);
 
     Fluttertoast.showToast(
-      msg: "welcome",
+      msg: "Order place succesfully",
       toastLength: Toast.LENGTH_SHORT,
       gravity: ToastGravity.BOTTOM,
       timeInSecForIosWeb: 1,
